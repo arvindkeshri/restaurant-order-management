@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant-app</title>
+</head>
+<body>
+    <h1>Restaurant Order Management Application</h1>
+    <h4>Enter customer's choice dish and its details here:</h4>
+    <form action="" id="form">
+        <label for="price">Dish Price</label>
+        <input type="number" name="price" id="price">
+        <label for="dish">Choose Dish</label>
+        <input type="text" name="dish" id="dish">
+        <label for="table">Choose Table</label>
+        <select name="table" id="table">
+            <option value="table1">Table1</option>
+            <option value="table2">Table2</option>
+            <option value="table3">Table3</option>
+        </select>
+        <input type="submit" value="Add Dish">
+    </form><br><br>
+    <label for="table1">Table 1</label><br>
+    <ul id="list1"></ul><br>
+    <label for="table1">Table 2</label><br>
+    <ul id="list2"></ul><br>
+    <label for="table1">Table 3</label><br>
+    <ul id="list3"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", ()=>{
+            axios
+                .get("http://localhost:3000/orders")
+                .then((res)=>{
+                    for(let i=0; i<res.data.length; i++){
+                        showOrdersOnScreen(res.data[i]);
+                    }
+                }).catch((err)=>{
+                    console.log(err);
+                })
+        })
+
+
+        function showOrdersOnScreen(obj){
+
+            //Handle form submission
+            const parentElem1 = document.getElementById('list1');
+            const parentElem2 = document.getElementById('list2');
+            const parentElem3 = document.getElementById('list3');
+
+            const childElem = document.createElement('li');
+            childElem.textContent = obj.price+"-"+obj.dish+"-"
+
+            const tableCategory = document.getElementById("table").value;
+
+            const deleteButton = document.createElement("input");
+            deleteButton.type = "button";
+            deleteButton.value = "Delete Order";
+            deleteButton.onclick = ()=>{
+                if(tableCategory === "table1") parentElem1.removeChild(childElem);
+                else if(tableCategory === "table2") parentElem2.removeChild(childElem);
+                else if(tableCategory === "table3") parentElem3.removeChild(childElem);
+
+                axios
+                    .delete(`http://localhost:3000/orders/${obj.id}`)
+                    .then((res)=>{})
+                    .catch(()=>{console.log("Error deleting order:",err)})
+            }
+
+            if(tableCategory === "table1") {
+                parentElem1.appendChild(childElem);
+                parentElem1.appendChild(deleteButton);
+            }
+            else if(tableCategory === "table2"){
+                 parentElem2.appendChild(childElem);
+                 parentElem2.appendChild(deleteButton);
+            }
+            else if(tableCategory === "table3"){
+                parentElem3.appendChild(childElem);
+                parentElem3.appendChild(deleteButton);
+            }
+           
+            document.getElementById("form").reset();
+
+        }
+
+
+
+
+
+    </script>
+</body>
+</html>
